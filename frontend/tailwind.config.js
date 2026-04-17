@@ -1,0 +1,76 @@
+/** @type {import('tailwindcss').Config} */
+export default {
+  darkMode: "class",
+  content: [
+    "./index.html",
+    "./src/**/*.{vue,js,ts,jsx,tsx}",
+  ],
+  theme: {
+    extend: {
+      colors: {
+        "primary-container": "#0066ff",
+        "on-secondary": "#ffffff",
+        "on-tertiary-fixed": "#021f29",
+        "surface-container-high": "#e6e8eb",
+        "tertiary-fixed": "#cbe7f5",
+        "error-container": "#ffdad6",
+        "inverse-primary": "#b3c5ff",
+        "surface-container-highest": "#e0e3e6",
+        "surface-container-low": "#f2f4f7",
+        "on-primary-fixed": "#001849",
+        "surface": "#f7f9fc",
+        "surface-bright": "#f7f9fc",
+        "surface-dim": "#d8dadd",
+        "secondary-fixed-dim": "#ffb778",
+        "on-primary-fixed-variant": "#003fa4",
+        "on-tertiary-container": "#f2faff",
+        "on-secondary-fixed-variant": "#6c3a00",
+        "secondary-fixed": "#ffdcc1",
+        "inverse-on-surface": "#eff1f4",
+        "outline": "#727687",
+        "on-tertiary": "#ffffff",
+        "on-surface": "#191c1e",
+        "on-primary-container": "#f8f7ff",
+        "surface-container": "#eceef1",
+        "on-error-container": "#93000a",
+        "on-secondary-container": "#613400",
+        "primary-fixed": "#dae1ff",
+        "outline-variant": "#c2c6d8",
+        "surface-variant": "#e0e3e6",
+        "on-primary": "#ffffff",
+        "surface-tint": "#0054d6",
+        "secondary-container": "#fd9000",
+        "tertiary-container": "#5c7682",
+        "background": "#f7f9fc",
+        "surface-container-lowest": "#ffffff",
+        "inverse-surface": "#2d3133",
+        "error": "#ba1a1a",
+        "on-surface-variant": "#424656",
+        "primary": "#0050cb",
+        "on-error": "#ffffff",
+        "tertiary-fixed-dim": "#afcbd8",
+        "on-secondary-fixed": "#2e1500",
+        "secondary": "#8e4e00",
+        "on-background": "#191c1e",
+        "tertiary": "#445d69",
+        "on-tertiary-fixed-variant": "#304a55",
+        "primary-fixed-dim": "#b3c5ff"
+      },
+      borderRadius: {
+        "DEFAULT": "0.25rem",
+        "lg": "0.5rem",
+        "xl": "0.75rem",
+        "full": "9999px"
+      },
+      fontFamily: {
+        "headline": ["Plus Jakarta Sans"],
+        "body": ["Inter"],
+        "label": ["Inter"]
+      }
+    },
+  },
+  plugins: [
+    require('@tailwindcss/forms'),
+    require('@tailwindcss/container-queries'),
+  ],
+}
