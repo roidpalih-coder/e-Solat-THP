@@ -1,45 +1,58 @@
 # E-Solat THP Backend - Laravel API
 
-A robust RESTful API built with Laravel 13, serving as the backbone for the E-Solat THP application. This backend provides comprehensive Islamic prayer time management, user authentication, and community services.
+API RESTful yang robust dibangun dengan Laravel 13, berfungsi sebagai backbone untuk aplikasi E-Solat THP. Backend ini menyediakan sistem manajemen absensi solat sekolah, autentikasi pengguna, dan layanan administrasi siswa.
 
-## 🏗️ Laravel Architecture Overview
+## 🏗️ Arsitektur Laravel
 
-This backend follows Laravel's best practices and modern PHP standards:
+Backend ini mengikuti best practices Laravel dan standar PHP modern:
 
 - **MVC Pattern**: Models, Views (API responses), Controllers
-- **Service Layer**: Business logic separation
-- **Repository Pattern**: Data access abstraction
-- **API Resource**: Consistent API responses
-- **Middleware**: Request filtering and authentication
-- **Events & Listeners**: Decoupled system events
+- **Service Layer**: Pemisahan business logic
+- **Repository Pattern**: Abstraksi akses data
+- **API Resource**: Respon API yang konsisten
+- **Middleware**: Filtering request dan autentikasi
+- **Events & Listeners**: Event sistem yang terpisah
 
-## 📁 Backend Directory Structure
+## 📁 Struktur Directory Backend
 
 ```
 backend/
 ├── app/
 │   ├── Http/
-│   │   ├── Controllers/      # API Controllers
-│   │   ├── Middleware/       # Custom Middleware
-│   │   ├── Requests/         # Form Request Validation
-│   │   └── Resources/        # API Resource Transformers
+│   │   └── Controllers/
+│   │       └── Api/          # API Controllers
+│   │           ├── AuthController.php      # Autentikasi user
+│   │           ├── SiswaController.php    # Manajemen data siswa
+│   │           ├── PetugasController.php   # Manajemen petugas
+│   │           ├── KelasController.php     # Manajemen kelas
+│   │           ├── AbsensiController.php  # Sistem absensi
+│   │           └── Controller.php         # Base controller
 │   ├── Models/               # Eloquent Models
-│   ├── Providers/            # Service Providers
-│   └── Exceptions/           # Custom Exception Handlers
-├── config/                   # Laravel Configuration Files
+│   │   ├── User.php         # Model user sistem
+│   │   ├── Siswa.php        # Model data siswa
+│   │   ├── Petugas.php      # Model data petugas
+│   │   ├── Kelas.php        # Model data kelas
+│   │   └── Absensi.php      # Model data absensi
+│   └── Providers/            # Service Providers
+├── config/                   # File Konfigurasi Laravel
 ├── database/
-│   ├── migrations/           # Database Schema Migrations
+│   ├── migrations/           # Migrations Schema Database
+│   │   ├── create_users_table.php
+│   │   ├── create_siswa_table.php
+│   │   ├── create_petugas_table.php
+│   │   ├── create_kelas_table.php
+│   │   └── create_absensi_table.php
 │   ├── seeders/             # Database Seeders
-│   └── factories/           # Model Factories for Testing
+│   └── factories/           # Model Factories untuk Testing
 ├── routes/
-│   ├── api.php              # API Routes
-│   ├── web.php              # Web Routes (if any)
+│   ├── api.php              # Routes API endpoints
+│   ├── web.php              # Web Routes (jika ada)
 │   └── channels.php         # Broadcasting Channels
-├── storage/                 # Application Storage
+├── storage/                 # Penyimpanan Aplikasi
 ├── tests/                   # Unit & Feature Tests
-├── .env                     # Environment Configuration
+├── .env                     # Konfigurasi Environment
 ├── artisan                  # Laravel CLI Tool
-└── composer.json            # PHP Dependencies
+└── composer.json            # Dependencies PHP
 ```
 
 ## 🔧 Core Technologies & Packages
@@ -69,52 +82,58 @@ backend/
 
 ## 🚀 API Endpoints Overview
 
-### Authentication Endpoints
+### Authentication Endpoints (Public)
 
 ```
-POST   /api/auth/register     # User registration
-POST   /api/auth/login        # User login
-POST   /api/auth/logout       # User logout
-POST   /api/auth/refresh      # Refresh token
-GET    /api/auth/profile      # Get user profile
-PUT    /api/auth/profile      # Update user profile
+POST   /api/register          # Registrasi user baru
+POST   /api/login             # Login user
 ```
 
-### Prayer Times Endpoints
+### Absensi Endpoints
 
 ```
-GET    /api/prayer-times      # Get prayer times
-GET    /api/prayer-times/{date}  # Get specific date
-POST   /api/prayer-times      # Create prayer time (admin)
-PUT    /api/prayer-times/{id} # Update prayer time (admin)
-DELETE /api/prayer-times/{id} # Delete prayer time (admin)
+POST   /api/absensi/public    # Absensi siswa tanpa login (NIS)
+GET    /api/absensi           # Get data absensi (auth required)
+GET    /api/absensi/by-date/{tanggal}  # Get absensi per tanggal
+GET    /api/absensi/siswa/{nis}        # Get absensi per siswa
 ```
 
-### Islamic Calendar Endpoints
+### Siswa Management Endpoints (Auth Required)
 
 ```
-GET    /api/calendar          # Get Islamic calendar
-GET    /api/calendar/{month}  # Get specific month
-POST   /api/calendar/events   # Create event (admin)
+GET    /api/siswa             # Get all siswa
+POST   /api/siswa             # Create new siswa
+GET    /api/siswa/{nis}       # Get siswa by NIS
+PUT    /api/siswa/{nis}       # Update siswa data
+DELETE /api/siswa/{nis}       # Delete siswa
+POST   /api/siswa/import      # Import data siswa (CSV/Excel)
 ```
 
-### Community Endpoints
+### Petugas Management Endpoints (Auth Required)
 
 ```
-GET    /api/announcements     # Get announcements
-POST   /api/announcements     # Create announcement (admin)
-GET    /api/events            # Get community events
-POST   /api/events            # Create event (admin)
+GET    /api/petugas           # Get all petugas
+POST   /api/petugas           # Create new petugas
+GET    /api/petugas/{id}      # Get petugas by ID
+PUT    /api/petugas/{id}      # Update petugas data
+DELETE /api/petugas/{id}      # Delete petugas
 ```
 
-### Admin Endpoints
+### Kelas Management Endpoints (Auth Required)
 
 ```
-GET    /api/admin/users       # User management
-POST   /api/admin/users       # Create user
-PUT    /api/admin/users/{id}  # Update user
-DELETE /api/admin/users/{id}  # Delete user
-GET    /api/admin/logs        # System logs
+GET    /api/kelas             # Get all kelas
+POST   /api/kelas             # Create new kelas
+GET    /api/kelas/{id}        # Get kelas by ID
+PUT    /api/kelas/{id}        # Update kelas data
+DELETE /api/kelas/{id}        # Delete kelas
+```
+
+### User Profile Endpoints (Auth Required)
+
+```
+GET    /api/me                # Get current user profile
+POST   /api/logout            # Logout user
 ```
 
 ## 📊 Database Schema
@@ -123,33 +142,47 @@ GET    /api/admin/logs        # System logs
 
 #### Users & Authentication
 
-- **users**: User accounts and profiles
-- **personal_access_tokens**: Sanctum API tokens
-- **password_resets**: Password reset tokens
+- **users**: Akun pengguna sistem (admin, petugas)
+- **personal_access_tokens**: Token API Sanctum
+- **password_resets**: Token reset password
 
-#### Prayer Times System
+#### Sistem Absensi
 
-- **prayer_times**: Daily prayer schedules
-- **locations**: Prayer location settings
-- **calculation_methods**: Prayer time calculation methods
+- **absensi**: Data absensi solat siswa
+    - id_absensi (Primary Key)
+    - nis (Foreign Key ke tabel siswa)
+    - tanggal (Tanggal absensi)
+    - waktu_absen (Waktu pencatatan)
+    - id_petugas (Foreign Key ke tabel petugas, nullable)
 
-#### Islamic Calendar
+#### Manajemen Siswa
 
-- **islamic_calendar**: Hijri calendar data
-- **islamic_events**: Important Islamic events
-- **ramadan_schedules**: Ramadan-specific schedules
+- **siswa**: Data lengkap siswa
+    - nis (Primary Key, string)
+    - nama_siswa (Nama lengkap)
+    - jenis_kelamin (L/P)
+    - id_kelas (Foreign Key ke tabel kelas)
 
-#### Community Management
+#### Manajemen Petugas
 
-- **announcements**: Community announcements
-- **events**: Community events
-- **event_attendees**: Event participation
+- **petugas**: Data petugas absensi
+    - id_petugas (Primary Key)
+    - nama_petugas (Nama lengkap)
+    - email (Email login)
+    - password (Hashed password)
+
+#### Manajemen Kelas
+
+- **kelas**: Data kelas dan jurusan
+    - id_kelas (Primary Key)
+    - nama_kelas (Nama kelas)
+    - jurusan (Jurusan/Program studi)
 
 #### System Management
 
-- **system_settings**: Application configuration
-- **audit_logs**: System audit trail
-- **activity_logs**: User activity tracking
+- **cache**: Cache sistem Laravel
+- **jobs**: Queue jobs Laravel
+- **failed_jobs**: Jobs yang gagal dieksekusi
 
 ## 🛡️ Security Features
 
@@ -356,12 +389,12 @@ php artisan queue:failed-table
 
 ## 🤝 Contributing to Backend
 
-1. Follow Laravel coding standards
-2. Write tests for new features
-3. Update documentation
-4. Use feature branches
-5. Submit pull requests with clear descriptions
+1. Ikuti Laravel coding standards
+2. Tulis tests untuk fitur baru
+3. Update dokumentasi
+4. Gunakan feature branches
+5. Submit pull requests dengan deskripsi jelas
 
 ---
 
-**E-Solat THP Backend** - A modern, secure, and scalable Laravel API for Islamic prayer services.
+**E-Solat THP Backend** - API Laravel yang modern, aman, dan skalabel untuk sistem absensi solat sekolah.
