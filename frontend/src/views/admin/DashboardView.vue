@@ -9,6 +9,7 @@ const router = useRouter()
 const siswaList = ref([])
 const kelasList = ref([])
 const absensiHariIni = ref([])
+const weeklyStats = ref([])
 const isLoading = ref(true)
 
 // --- Computed Stats ---
@@ -34,18 +35,50 @@ const persentaseHadir = computed(() => {
   return Math.round((totalAbsensiHariIni.value / totalSiswa.value) * 100)
 })
 
+// Data Chart Dinamis (Sen-Jum)
+const chartData = computed(() => {
+  const days = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab']
+  const targetDays = [1, 2, 3, 4, 5] // Senin - Jumat
+
+  let maxTotal = 0;
+  const mapData = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 }
+  
+  weeklyStats.value.forEach(item => {
+    const d = new Date(item.tanggal)
+    const dayOfWeek = d.getDay()
+    if (mapData[dayOfWeek] !== undefined) {
+      mapData[dayOfWeek] += item.total
+    }
+  })
+
+  Object.values(mapData).forEach(val => {
+    if (val > maxTotal) maxTotal = val
+  })
+
+  maxTotal = Math.max(maxTotal, 1)
+
+  return targetDays.map(d => ({
+    dayName: days[d],
+    total: mapData[d],
+    heightPercent: Math.max((mapData[d] / maxTotal) * 100, 10),
+    isToday: new Date().getDay() === d
+  }))
+})
+
 // --- Fetch Data ---
 const fetchData = async () => {
   isLoading.value = true
   try {
-    const [siswaRes, kelasRes, absensiRes] = await Promise.all([
+    const [siswaRes, kelasRes, absensiRes, weeklyRes] = await Promise.all([
       api.get('/siswa'),
       api.get('/kelas'),
       api.get(`/absensi/by-date/${today.value}`),
+      api.get('/absensi/weekly'),
     ])
     siswaList.value = siswaRes.data.data || []
     kelasList.value = kelasRes.data.data || []
     absensiHariIni.value = absensiRes.data.data || []
+    weeklyStats.value = weeklyRes.data.data || []
   } catch (err) {
     console.error('Gagal fetch data dashboard:', err)
   } finally {
@@ -159,27 +192,18 @@ onMounted(fetchData)
               <button class="px-4 py-1.5 rounded-full text-xs font-bold bg-secondary-fixed text-on-secondary-fixed">Minggu Ini</button>
             </div>
           </div>
-          <!-- Chart placeholder dengan data real sebagai tinggi bar -->
+          <!-- Chart dynamic -->
           <div class="h-64 flex items-end justify-between gap-2 px-4">
-            <div class="flex flex-col items-center gap-2 flex-1 group">
-              <div class="w-full bg-surface-container-high rounded-t-lg h-[40%] group-hover:bg-primary/20 transition-all"></div>
-              <span class="text-[10px] font-bold text-on-surface-variant">Sen</span>
-            </div>
-            <div class="flex flex-col items-center gap-2 flex-1 group">
-              <div class="w-full bg-surface-container-high rounded-t-lg h-[65%] group-hover:bg-primary/20 transition-all"></div>
-              <span class="text-[10px] font-bold text-on-surface-variant">Sel</span>
-            </div>
-            <div class="flex flex-col items-center gap-2 flex-1 group">
-              <div class="w-full bg-primary-container rounded-t-lg shadow-lg shadow-primary-container/20" :style="`height: ${Math.max(persentaseHadir, 10)}%`"></div>
-              <span class="text-[10px] font-bold text-primary">Rab</span>
-            </div>
-            <div class="flex flex-col items-center gap-2 flex-1 group">
-              <div class="w-full bg-surface-container-high rounded-t-lg h-[55%] group-hover:bg-primary/20 transition-all"></div>
-              <span class="text-[10px] font-bold text-on-surface-variant">Kam</span>
-            </div>
-            <div class="flex flex-col items-center gap-2 flex-1 group">
-              <div class="w-full bg-surface-container-high rounded-t-lg h-[75%] group-hover:bg-primary/20 transition-all"></div>
-              <span class="text-[10px] font-bold text-on-surface-variant">Jum</span>
+            <div v-for="(col, index) in chartData" :key="index" class="flex flex-col items-center gap-2 flex-1 group relative">
+              <div class="absolute -top-8 bg-surface-container-highest text-on-surface text-[10px] font-bold px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">
+                {{ col.total }} Absen
+              </div>
+              <div 
+                class="w-full rounded-t-lg transition-all"
+                :class="col.isToday ? 'bg-primary-container shadow-lg shadow-primary-container/20 group-hover:brightness-110' : 'bg-surface-container-high group-hover:bg-primary/20'" 
+                :style="`height: ${col.heightPercent}%`"
+              ></div>
+              <span class="text-[10px] font-bold" :class="col.isToday ? 'text-primary' : 'text-on-surface-variant'">{{ col.dayName }}</span>
             </div>
           </div>
         </div>

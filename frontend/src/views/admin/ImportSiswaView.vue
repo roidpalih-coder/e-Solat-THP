@@ -14,6 +14,8 @@ const parseErrors = ref([])
 const importResults = ref([])
 const isImporting = ref(false)
 const importDone = ref(false)
+const importMode = ref('append')
+const isExporting = ref(false)
 const isDragOver = ref(false)
 const isDragOverInput = ref(false)
 
@@ -113,7 +115,7 @@ const startImport = async () => {
       nama_kelas: r.nama_kelas,
     }))
 
-    const res = await api.post('/siswa/import', { data: payload })
+    const res = await api.post('/siswa/import', { data: payload, mode: importMode.value })
     importResults.value = res.data.results || []
     importDone.value = true
   } catch (err) {
@@ -143,6 +145,37 @@ const downloadTemplate = () => {
   link.click()
   URL.revokeObjectURL(url)
 }
+
+const exportCurrentSiswa = async () => {
+  isExporting.value = true
+  try {
+    const res = await api.get('/siswa')
+    const siswaData = res.data.data || []
+    if (siswaData.length === 0) {
+      alert("Tidak ada data siswa untuk diexport.")
+      return
+    }
+    let csvContent = "data:text/csv;charset=utf-8,nis,nama_siswa,jenis_kelamin,nama_kelas\n"
+    siswaData.forEach(item => {
+      const nis = item.nis
+      const nama = item.nama_siswa || '-'
+      const jk = item.jenis_kelamin || '-'
+      const kelas = item.kelas?.nama_kelas || '-'
+      csvContent += `"${nis}","${nama}","${jk}","${kelas}"\n`
+    })
+    const encodedUri = encodeURI(csvContent)
+    const link = document.createElement("a")
+    link.setAttribute("href", encodedUri)
+    link.setAttribute("download", `Data_Siswa_Aktual.csv`)
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+  } catch (e) {
+    console.error("Gagal export", e)
+  } finally {
+    isExporting.value = false
+  }
+}
 </script>
 
 <template>
@@ -154,9 +187,14 @@ const downloadTemplate = () => {
       <p class="text-on-surface-variant mt-1">Upload file CSV atau Excel untuk menambahkan data siswa secara massal.</p>
     </div>
     <div class="flex gap-3">
+      <button @click="exportCurrentSiswa" :disabled="isExporting" class="flex items-center gap-2 px-4 py-2 bg-emerald-100 rounded-full text-sm font-semibold text-emerald-800 hover:bg-emerald-200 transition-all disabled:opacity-60">
+        <span v-if="isExporting" class="material-symbols-outlined text-lg animate-spin">progress_activity</span>
+        <span v-else class="material-symbols-outlined text-lg">download</span>
+        Export Data Saat Ini
+      </button>
       <button @click="downloadTemplate" class="flex items-center gap-2 px-4 py-2 bg-surface-container-low rounded-full text-sm font-semibold text-primary hover:bg-surface-container-high transition-all">
-        <span class="material-symbols-outlined text-lg">download</span>
-        Download Template
+        <span class="material-symbols-outlined text-lg">description</span>
+        Template CSV
       </button>
       <button @click="router.push('/admin/data-siswa')" class="flex items-center gap-2 px-4 py-2 bg-surface-container-low rounded-full text-sm font-semibold text-on-surface-variant hover:bg-surface-container-high transition-all">
         <span class="material-symbols-outlined text-lg">arrow_back</span>
@@ -180,6 +218,24 @@ const downloadTemplate = () => {
             </div>
             <p class="text-xs text-blue-600 mt-2">Nilai <code class="bg-blue-100 px-1 rounded">jenis_kelamin</code> harus persis: <code class="bg-blue-100 px-1 rounded">Laki-laki</code> atau <code class="bg-blue-100 px-1 rounded">Perempuan</code></p>
           </div>
+        </div>
+      </div>
+
+      <!-- Mode Selection -->
+      <div class="bg-surface-container-lowest border-2 border-surface-container rounded-xl p-5 flex flex-col md:flex-row md:items-center gap-4 justify-between">
+        <div>
+          <h3 class="font-bold text-on-surface text-sm mb-1">Mode Import Data</h3>
+          <p class="text-xs text-on-surface-variant">Tentukan tindakan jika NIS siswa sudah terdaftar sebelumnya.</p>
+        </div>
+        <div class="flex gap-4">
+          <label class="flex items-center gap-2 cursor-pointer">
+            <input type="radio" value="append" v-model="importMode" class="text-primary focus:ring-primary h-4 w-4" />
+            <span class="text-sm font-semibold text-on-surface">Tambahkan Baru (Berdasarkan NIS)</span>
+          </label>
+          <label class="flex items-center gap-2 cursor-pointer">
+            <input type="radio" value="replace" v-model="importMode" class="text-error focus:ring-error h-4 w-4" />
+            <span class="text-sm font-semibold text-on-surface">Timpa Data Lama (Update)</span>
+          </label>
         </div>
       </div>
 

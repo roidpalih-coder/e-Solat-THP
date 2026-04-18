@@ -151,4 +151,37 @@ class AbsensiController extends Controller
             'data' => $absensi
         ]);
     }
+
+    public function getWeeklyStats(): JsonResponse
+    {
+        $startDate = now()->subDays(6)->toDateString();
+        $endDate = now()->toDateString();
+        
+        $absensi = Absensi::selectRaw('tanggal, count(*) as total')
+            ->whereBetween('tanggal', [$startDate, $endDate])
+            ->groupBy('tanggal')
+            ->orderBy('tanggal', 'asc')
+            ->get();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'Weekly stats retrieved',
+            'data' => $absensi
+        ]);
+    }
+
+    public function getPublicStats(): JsonResponse
+    {
+        $today = now()->toDateString();
+        $totalSiswa = \App\Models\Siswa::count();
+        $absenHariIni = Absensi::whereDate('tanggal', $today)->count();
+
+        return response()->json([
+            'status' => 'success',
+            'data' => [
+                'total_siswa' => $totalSiswa,
+                'absen_hari_ini' => $absenHariIni
+            ]
+        ]);
+    }
 }

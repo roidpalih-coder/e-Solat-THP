@@ -7,6 +7,7 @@ const kelasList = ref([])
 const absensiList = ref([])
 const selectedDate = ref(new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Jakarta' }).format(new Date()))
 const selectedKelasId = ref(null)
+const filterJurusan = ref('')
 const searchQuery = ref('')
 const isLoading = ref(false)
 let pollingInterval = null
@@ -16,11 +17,27 @@ const todayFormatted = computed(() => {
   return new Date().toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })
 })
 
+const jurusanList = computed(() => {
+  const jurusans = new Set()
+  kelasList.value.forEach(k => {
+    const parts = k.nama_kelas.split(' ')
+    if (parts.length >= 2) jurusans.add(parts[1])
+  })
+  return Array.from(jurusans).sort()
+})
+
 const filteredAbsensi = computed(() => {
   let list = absensiList.value
   // Filter kelas
   if (selectedKelasId.value) {
     list = list.filter(a => a.siswa?.kelas?.id_kelas === selectedKelasId.value)
+  }
+  // Filter jurusan
+  if (filterJurusan.value) {
+    list = list.filter(a => {
+      const parts = a.siswa?.kelas?.nama_kelas?.split(' ') || []
+      return parts.length >= 2 && parts[1] === filterJurusan.value
+    })
   }
   // Filter pencarian nama
   if (searchQuery.value.trim()) {
@@ -88,6 +105,31 @@ const formatTime = (timeStr) => {
   return timeStr.substring(0, 5) + ' WIB'
 }
 
+const addDays = (num) => {
+  const d = new Date(selectedDate.value)
+  d.setDate(d.getDate() + num)
+  selectedDate.value = new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Jakarta' }).format(d)
+}
+
+const exportCSV = () => {
+  if (filteredAbsensi.value.length === 0) return
+  let csvContent = "data:text/csv;charset=utf-8,NIS,Nama Siswa,Waktu Absen,Kelas\n"
+  filteredAbsensi.value.forEach(item => {
+    const nis = item.nis
+    const nama = item.siswa?.nama_siswa || '-'
+    const waktu = item.waktu_absen
+    const kelas = item.siswa?.kelas?.nama_kelas || '-'
+    csvContent += `"${nis}","${nama}","${waktu}","${kelas}"\n`
+  })
+  const encodedUri = encodeURI(csvContent)
+  const link = document.createElement("a")
+  link.setAttribute("href", encodedUri)
+  link.setAttribute("download", `Absensi_${selectedDate.value}.csv`)
+  document.body.appendChild(link)
+  link.click()
+  document.body.removeChild(link)
+}
+
 // Re-fetch saat tanggal berubah
 watch(selectedDate, fetchAbsensi)
 
@@ -125,14 +167,45 @@ onUnmounted(() => {
         <div class="flex items-center justify-between mb-6">
           <div class="flex items-center gap-2">
             <span class="material-symbols-outlined text-secondary">filter_alt</span>
-            <h3 class="text-lg font-semibold text-on-surface">Filter Kelas</h3>
+            <h3 class="text-lg font-semibold text-on-surface">Filter & Tanggal</h3>
           </div>
-          <div class="flex items-center gap-4 bg-surface-container-low px-4 py-2 rounded-xl border border-surface-container/50">
-            <label class="text-xs font-bold text-on-surface-variant" for="view_date">PILIH TANGGAL</label>
-            <input v-model="selectedDate" class="bg-transparent border-none focus:ring-0 text-sm font-semibold text-primary" id="view_date" type="date"/>
+          <div class="flex items-center gap-2">
+            <button @click="addDays(-1)" class="p-2 border rounded-xl bg-surface-container-low hover:bg-surface-container transition-colors" title="Hari Sebelumnya">
+              <span class="material-symbols-outlined text-sm">chevron_left</span>
+            </button>
+            <div class="flex items-center gap-4 bg-surface-container-low px-4 py-2 rounded-xl border border-surface-container/50">
+              <input v-model="selectedDate" class="bg-transparent border-none focus:ring-0 text-sm font-semibold text-primary p-0" id="view_date" type="date"/>
+            </div>
+            <button @click="addDays(1)" class="p-2 border rounded-xl bg-surface-container-low hover:bg-surface-container transition-colors" title="Hari Berikutnya">
+              <span class="material-symbols-outlined text-sm">chevron_right</span>
+            </button>
           </div>
         </div>
+        
+        <!-- Filter Jurusan -->
+        <div class="flex flex-wrap gap-3 mb-4">
+          <span class="text-xs font-bold text-on-surface-variant self-center mr-2">JURUSAN:</span>
+          <button
+            @click="filterJurusan = ''"
+            :class="filterJurusan === '' ? 'bg-primary-container text-on-primary-container font-bold shadow-sm' : 'bg-surface-container-high text-on-surface-variant font-medium'"
+            class="px-4 py-1.5 rounded-full text-xs hover:translate-y-[-2px] transition-all"
+          >
+            Semua
+          </button>
+          <button
+            v-for="jurusan in jurusanList"
+            :key="jurusan"
+            @click="filterJurusan = filterJurusan === jurusan ? '' : jurusan"
+            :class="filterJurusan === jurusan ? 'bg-primary-container text-on-primary-container font-bold shadow-sm' : 'bg-surface-container-high text-on-surface-variant font-medium'"
+            class="px-4 py-1.5 rounded-full text-xs hover:translate-y-[-2px] transition-all"
+          >
+            {{ jurusan }}
+          </button>
+        </div>
+        
+        <!-- Filter Kelas -->
         <div class="flex flex-wrap gap-3">
+          <span class="text-xs font-bold text-on-surface-variant self-center mr-2">KELAS:</span>
           <!-- Tombol Semua -->
           <button
             @click="selectKelas(null)"
@@ -190,7 +263,13 @@ onUnmounted(() => {
           </p>
         </div>
         <div class="flex gap-2">
-          <div class="relative">
+          <!-- Download CSV -->
+          <button @click="exportCSV" class="flex items-center gap-2 px-4 py-2 bg-emerald-100 text-emerald-800 rounded-lg hover:bg-emerald-200 transition-colors font-bold text-sm">
+            <span class="material-symbols-outlined text-sm">download</span>
+            Export CSV
+          </button>
+          
+          <div class="relative ml-2">
             <span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline-variant text-sm">search</span>
             <input v-model="searchQuery" class="pl-10 pr-4 py-2 bg-surface-container-low border-none rounded-lg text-sm focus:ring-1 focus:ring-primary/20 w-64" placeholder="Cari nama atau NIS..." type="text"/>
           </div>

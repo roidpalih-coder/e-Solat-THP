@@ -1,7 +1,27 @@
 <script setup>
+import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import axios from 'axios'
 
 const router = useRouter()
+
+const stats = ref({
+  total_siswa: 0,
+  total_absen_hari_ini: 0
+})
+
+const fetchStats = async () => {
+  try {
+    const res = await axios.get('/api/stats')
+    stats.value = res.data.data
+  } catch (err) {
+    console.error('Failed to fetch public stats', err)
+  }
+}
+
+onMounted(() => {
+  fetchStats()
+})
 
 const goToLogin = () => {
   router.push('/login')
@@ -10,23 +30,33 @@ const goToLogin = () => {
 const goToAbsensi = () => {
   router.push('/absensi')
 }
+
+const scrollToTop = () => {
+  window.scrollTo({ top: 0, behavior: 'smooth' })
+}
+
+const scrollTo = (selector) => {
+  const el = document.querySelector(selector)
+  if (el) el.scrollIntoView({ behavior: 'smooth' })
+}
 </script>
 
 <template>
   <div class="bg-surface text-on-surface selection:bg-primary-fixed selection:text-on-primary-fixed">
     <!-- TopNavBar -->
     <nav class="fixed top-0 w-full z-50 bg-[#f7f9fc]/80 dark:bg-slate-900/80 backdrop-blur-md shadow-sm dark:shadow-none flex justify-between items-center px-8 py-4 max-w-full">
-      <div class="flex items-center gap-2">
-        <span class="text-xl font-bold text-[#0050cb] dark:text-blue-400">e-Solat THP</span>
+      <div class="flex items-center gap-2 cursor-pointer" @click="scrollToTop">
+        <img src="/images/Thp_logo.png" alt="Logo SMK THP" class="h-10" />
+        <span class="hidden md:inline text-xl font-bold text-[#0050cb] dark:text-blue-400">e-Solat THP</span>
       </div>
       <div class="hidden md:flex items-center gap-8 font-['Plus_Jakarta_Sans'] font-semibold">
-        <a class="text-[#0050cb] border-b-2 border-[#0050cb] pb-1" href="#">Beranda</a>
-        <a class="text-slate-600 dark:text-slate-400 hover:text-[#0050cb] transition-colors" href="#">Tentang</a>
-        <a class="text-slate-600 dark:text-slate-400 hover:text-[#0050cb] transition-colors" href="#">Panduan</a>
+        <a @click.prevent="scrollToTop" class="text-[#0050cb] border-b-2 border-[#0050cb] pb-1 cursor-pointer">Beranda</a>
+        <a @click.prevent="scrollTo('#fitur')" class="text-slate-600 dark:text-slate-400 hover:text-[#0050cb] transition-colors cursor-pointer">Tentang</a>
+        <a @click.prevent="scrollTo('#panduan')" class="text-slate-600 dark:text-slate-400 hover:text-[#0050cb] transition-colors cursor-pointer">Panduan</a>
       </div>
       <div class="flex items-center gap-4">
-        <button @click="goToLogin" class="text-slate-600 dark:text-slate-400 font-semibold px-4 py-2 hover:text-[#0050cb] transition-colors">Masuk</button>
-        <button class="bg-primary text-on-primary px-6 py-2 rounded-full font-semibold shadow-md active:scale-95 duration-200">Daftar</button>
+        <button @click="goToLogin" class="text-slate-600 dark:text-slate-400 font-semibold px-4 py-2 hover:text-[#0050cb] transition-colors cursor-pointer">Masuk</button>
+        <button @click="router.push('/register')" class="bg-primary text-on-primary px-6 py-2 rounded-full font-semibold shadow-md active:scale-95 duration-200 cursor-pointer">Daftar</button>
       </div>
     </nav>
     <main class="pt-24">
@@ -62,8 +92,8 @@ const goToAbsensi = () => {
           </div>
           <div class="hidden lg:block relative">
             <div class="relative z-20 rounded-[2rem] overflow-hidden shadow-2xl transform rotate-3 hover:rotate-0 transition-transform duration-700 bg-surface-container-lowest p-4">
-              <img alt="Digital Attendance" class="rounded-[1.5rem] w-full h-[500px] object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDJbMxw6-eohdxOVsDcqzjcqZzBDdPie4FA8no2Dy25PX5GEPS5JeAFKX8tPvNesIkZkQcq3ejSTeYjJX9lQtAjUNLp2q_7ZoABSxrcF5wxk6tlsXeJp-Dhz19fhWMv5zC02zzkyFWfpLnMq5kigMNs59ua7tCVdG_XLXshXh1KR0QUfEDRrChzvtaG_DnTkznbQjs5hhMvcoSvyn_zslXjZniq128Ou9zQydsoHz7ItogyYzHEhYv0qOZle7byBTNFql-HWei5PZ8"/>
-              <div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent"></div>
+              <img alt="Digital Attendance" class="rounded-[1.5rem] w-full h-[500px] object-cover" src="/images/Desktop.jpeg"/>
+              <div class="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent pointer-events-none"></div>
               <div class="absolute bottom-8 left-8 right-8 glass-panel p-6 rounded-2xl border border-white/20">
                 <div class="flex justify-between items-center">
                   <div>
@@ -87,15 +117,15 @@ const goToAbsensi = () => {
           <div class="bg-surface-container-lowest p-8 rounded-3xl shadow-sm flex flex-col gap-4">
             <span class="material-symbols-outlined text-primary text-4xl">group</span>
             <div>
-              <h3 class="text-4xl font-extrabold text-on-surface headline">5,000+</h3>
+              <h3 class="text-4xl font-extrabold text-on-surface headline">{{ stats.total_siswa.toLocaleString('id-ID') }}</h3>
               <p class="text-on-surface-variant font-medium">Siswa Terdaftar</p>
             </div>
           </div>
           <div class="bg-surface-container-lowest p-8 rounded-3xl shadow-sm flex flex-col gap-4 md:translate-y-4">
             <span class="material-symbols-outlined text-secondary text-4xl">verified_user</span>
             <div>
-              <h3 class="text-4xl font-extrabold text-on-surface headline">25+</h3>
-              <p class="text-on-surface-variant font-medium">Sekolah Bermitra</p>
+              <h3 class="text-4xl font-extrabold text-on-surface headline">{{ stats.total_absen_hari_ini.toLocaleString('id-ID') }}</h3>
+              <p class="text-on-surface-variant font-medium">Siswa Sudah Absen</p>
             </div>
           </div>
           <div class="bg-surface-container-lowest p-8 rounded-3xl shadow-sm flex flex-col gap-4">
@@ -108,7 +138,7 @@ const goToAbsensi = () => {
         </div>
       </section>
       <!-- Fitur Utama -->
-      <section class="px-8 md:px-16 lg:px-24 py-32">
+      <section id="fitur" class="px-8 md:px-16 lg:px-24 py-32">
         <div class="mb-20 text-center max-w-3xl mx-auto">
           <h2 class="headline text-4xl font-bold text-on-surface mb-6">Fitur Utama</h2>
           <p class="text-on-surface-variant text-lg">Inovasi teknologi yang dirancang khusus untuk memudahkan pengawasan ibadah secara holistik dan transparan.</p>
@@ -147,7 +177,7 @@ const goToAbsensi = () => {
         </div>
       </section>
       <!-- Cara Menggunakan -->
-      <section class="px-8 md:px-16 lg:px-24 py-32 bg-surface-container-low">
+      <section id="panduan" class="px-8 md:px-16 lg:px-24 py-32 bg-surface-container-low">
         <div class="flex flex-col lg:flex-row gap-16 items-center">
           <div class="lg:w-1/2">
             <h2 class="headline text-4xl font-bold text-on-surface mb-12">Cara Menggunakan Sistem</h2>
@@ -188,36 +218,6 @@ const goToAbsensi = () => {
           </div>
         </div>
       </section>
-      <!-- CTA Section -->
-      <section class="px-8 md:px-16 lg:px-24 py-24">
-        <div class="bg-primary rounded-[3rem] p-12 md:p-20 text-center relative overflow-hidden shadow-2xl shadow-primary/30">
-          <div class="absolute inset-0 bg-gradient-to-br from-primary-container to-primary pointer-events-none opacity-50"></div>
-          <div class="relative z-10 max-w-3xl mx-auto">
-            <h2 class="text-4xl md:text-5xl font-extrabold text-white mb-8 leading-tight headline">Siap Memodernisasi <br/>Manajemen Ibadah Anda?</h2>
-            <p class="text-on-primary-container text-lg md:text-xl mb-12">Daftarkan sekolah atau institusi Anda hari ini dan rasakan kemudahan pengelolaan spiritual yang lebih cerdas.</p>
-            <div class="flex flex-col sm:flex-row justify-center gap-6">
-              <button class="bg-white text-primary px-10 py-4 rounded-full font-bold text-lg hover:bg-surface-container-lowest transition-colors shadow-xl">Coba Gratis 30 Hari</button>
-              <button class="bg-primary-container border border-white/30 text-white px-10 py-4 rounded-full font-bold text-lg hover:bg-white/10 transition-colors">Konsultasi Admin</button>
-            </div>
-          </div>
-        </div>
-      </section>
     </main>
-    <!-- Footer -->
-    <footer class="w-full py-8 mt-auto bg-[#f7f9fc] dark:bg-slate-950 flex flex-col md:flex-row justify-between items-center px-12 border-t border-slate-200/20">
-      <div class="mb-4 md:mb-0">
-        <span class="font-bold text-slate-800 dark:text-slate-200 text-lg headline">e-Solat THP</span>
-        <p class="text-slate-500 text-xs mt-1">© 2024 e-Solat THP - The Serene Architect</p>
-      </div>
-      <div class="flex flex-wrap justify-center gap-6 text-xs">
-        <a class="text-slate-500 hover:text-[#fd9000] transition-colors" href="#">Kebijakan Privasi</a>
-        <a class="text-slate-500 hover:text-[#fd9000] transition-colors" href="#">Syarat &amp; Ketentuan</a>
-        <a class="text-slate-500 hover:text-[#fd9000] transition-colors" href="#">Kontak Kami</a>
-      </div>
-      <div class="mt-4 md:mt-0 flex gap-4">
-        <span class="material-symbols-outlined text-slate-400 cursor-pointer hover:text-primary transition-colors">language</span>
-        <span class="material-symbols-outlined text-slate-400 cursor-pointer hover:text-primary transition-colors">notifications</span>
-      </div>
-    </footer>
   </div>
 </template>

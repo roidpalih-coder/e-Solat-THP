@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\AbsensiController;
 // Route Public (Bisa diakses tanpa login)
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
+Route::get('/stats', [AbsensiController::class, 'getPublicStats']);
 
 // Absensi publik untuk siswa (tanpa token)
 Route::post('/absensi/public', [AbsensiController::class, 'storePublic']);
@@ -35,6 +36,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // Absensi Routes
     Route::prefix('absensi')->group(function () {
         // Static routes MUST come before dynamic routes
+        Route::get('/weekly', [AbsensiController::class, 'getWeeklyStats']);
         Route::get('/by-date/{tanggal}', [AbsensiController::class, 'getByDate']);
         Route::get('/siswa/{nis}', [AbsensiController::class, 'getBySiswa']);
     });

@@ -1,0 +1,1 @@
+var e=`/images/Mobile.jpeg`;export{e as t};

@@ -85,6 +85,7 @@ class SiswaController extends Controller
             'data.*.nama_siswa'     => 'required|string|max:255',
             'data.*.jenis_kelamin'  => 'required|in:Laki-laki,Perempuan',
             'data.*.nama_kelas'     => 'required|string',
+            'mode'                  => 'sometimes|in:append,replace',
         ]);
 
         $results = [];
@@ -101,14 +102,31 @@ class SiswaController extends Controller
             }
 
             // Cek apakah NIS sudah ada
-            if (Siswa::where('nis', $row['nis'])->exists()) {
-                $results[] = [
-                    'baris' => $index + 2,
-                    'nis' => $row['nis'],
-                    'status' => 'skip',
-                    'pesan' => 'NIS sudah terdaftar, dilewati.'
-                ];
-                $errorCount++;
+            $existing = Siswa::where('nis', $row['nis'])->first();
+
+            if ($existing) {
+                if ($request->input('mode') === 'replace') {
+                    $existing->update([
+                        'nama_siswa'    => $row['nama_siswa'],
+                        'jenis_kelamin' => $row['jenis_kelamin'],
+                        'id_kelas'      => $kelas->id_kelas,
+                    ]);
+                    $results[] = [
+                        'baris' => $index + 2,
+                        'nis' => $row['nis'],
+                        'status' => 'success',
+                        'pesan' => 'Data diperbarui.'
+                    ];
+                    $successCount++;
+                } else {
+                    $results[] = [
+                        'baris' => $index + 2,
+                        'nis' => $row['nis'],
+                        'status' => 'skip',
+                        'pesan' => 'NIS sudah terdaftar, dilewati.'
+                    ];
+                    $errorCount++;
+                }
                 continue;
             }
 

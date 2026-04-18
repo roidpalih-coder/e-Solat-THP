@@ -47,7 +47,9 @@ const goToLogin = () => {
 
 const formatTime = (timeStr) => {
   if (!timeStr) return '-'
-  return timeStr.substring(0, 5) + ' WIB'
+  const parts = timeStr.split(' ');
+  const timePart = parts.length > 1 ? parts[1] : parts[0];
+  return timePart.substring(0, 5) + ' WIB';
 }
 
 const getInitials = (name) => {
@@ -57,7 +59,13 @@ const getInitials = (name) => {
 </script>
 
 <template>
-  <div class="bg-surface text-on-surface min-h-screen flex flex-col relative">
+  <div class="bg-surface text-on-surface min-h-screen flex flex-col relative overflow-hidden">
+    <!-- Responsive Background Images -->
+    <div class="absolute inset-0 z-0 pointer-events-none">
+      <img src="/images/Desktop.jpeg" alt="Background Desktop" class="w-full h-full object-cover hidden md:block opacity-20 mix-blend-multiply" />
+      <img src="/images/Mobile.jpeg" alt="Background Mobile" class="w-full h-full object-cover block md:hidden opacity-20 mix-blend-multiply" />
+      <div class="absolute inset-0 bg-surface/80 backdrop-blur-[2px]"></div>
+    </div>
     <!-- TopNavBar -->
     <nav class="fixed top-0 w-full z-40 bg-[#f7f9fc]/80 dark:bg-slate-900/80 backdrop-blur-md shadow-sm dark:shadow-none flex justify-between items-center px-8 py-4 max-w-full">
       <div class="text-xl font-bold text-[#0050cb] dark:text-blue-400 font-headline cursor-pointer" @click="router.push('/')">e-Solat THP</div>
@@ -72,7 +80,7 @@ const getInitials = (name) => {
       </div>
     </nav>
 
-    <main class="flex-grow flex items-center justify-center px-6 pt-20">
+    <main class="flex-grow flex items-center justify-center px-6 pt-20 relative z-10">
       <div class="max-w-[1400px] w-full grid grid-cols-1 lg:grid-cols-2 gap-12 items-center bg-surface-container rounded-[2rem] p-8 lg:p-16 relative overflow-hidden">
         <!-- Background Decorative -->
         <div class="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/5 rounded-full blur-[100px]"></div>
@@ -159,7 +167,7 @@ const getInitials = (name) => {
     </main>
 
     <!-- Footer -->
-    <footer class="w-full py-8 mt-auto bg-[#f7f9fc] dark:bg-slate-950 flex flex-col md:flex-row justify-between items-center px-12 border-t border-slate-200/20">
+    <footer class="w-full py-8 mt-auto bg-[#f7f9fc]/90 dark:bg-slate-950 flex flex-col md:flex-row justify-between items-center px-12 border-t border-slate-200/20 relative z-10 backdrop-blur-sm">
       <div class="font-bold text-slate-800 dark:text-slate-200 text-xs mb-4 md:mb-0">
         © 2024 e-Solat THP - The Serene Architect
       </div>

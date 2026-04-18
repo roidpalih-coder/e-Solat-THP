@@ -58,6 +58,11 @@ const router = createRouter({
           path: 'import-siswa',
           name: 'admin-import-siswa',
           component: () => import('@/views/admin/ImportSiswaView.vue')
+        },
+        {
+          path: 'kelas',
+          name: 'admin-kelas',
+          component: () => import('@/views/admin/KelasView.vue')
         }
       ]
     }

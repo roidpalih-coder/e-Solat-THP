@@ -14,6 +14,16 @@ const isLoading = ref(false)
 const searchQuery = ref('')
 const filterGender = ref('') // '' | 'Laki-laki' | 'Perempuan'
 const filterKelasId = ref(null)
+const filterJurusan = ref('')
+
+const jurusanList = computed(() => {
+  const jurusans = new Set()
+  kelasList.value.forEach(k => {
+    const parts = k.nama_kelas.split(' ')
+    if (parts.length >= 2) jurusans.add(parts[1])
+  })
+  return Array.from(jurusans).sort()
+})
 
 // Modal edit
 const showEditModal = ref(false)
@@ -41,6 +51,12 @@ const filteredSiswa = computed(() => {
   }
   if (filterKelasId.value) {
     list = list.filter(s => s.id_kelas === filterKelasId.value)
+  }
+  if (filterJurusan.value) {
+    list = list.filter(s => {
+      const parts = s.kelas?.nama_kelas?.split(' ') || []
+      return parts.length >= 2 && parts[1] === filterJurusan.value
+    })
   }
   return list
 })
@@ -209,6 +225,26 @@ onMounted(async () => {
             <button @click="setGender('')" :class="filterGender === '' ? 'bg-secondary-fixed text-on-secondary-fixed font-bold' : 'bg-surface-container-high text-on-surface-variant font-medium'" class="px-3 py-1.5 rounded-full text-xs transition-all hover:bg-slate-200">Semua</button>
             <button @click="setGender('Laki-laki')" :class="filterGender === 'Laki-laki' ? 'bg-secondary-fixed text-on-secondary-fixed font-bold' : 'bg-surface-container-high text-on-surface-variant font-medium'" class="px-3 py-1.5 rounded-full text-xs transition-all hover:bg-slate-200">Laki-laki</button>
             <button @click="setGender('Perempuan')" :class="filterGender === 'Perempuan' ? 'bg-secondary-fixed text-on-secondary-fixed font-bold' : 'bg-surface-container-high text-on-surface-variant font-medium'" class="px-3 py-1.5 rounded-full text-xs transition-all hover:bg-slate-200">Perempuan</button>
+          </div>
+        </div>
+
+        <!-- Jurusan Filter -->
+        <div class="p-6 bg-surface-container-lowest rounded-xl shadow-sm">
+          <div class="flex items-center gap-3 mb-4">
+            <span class="material-symbols-outlined text-primary">school</span>
+            <h3 class="font-bold text-sm text-on-surface">Jurusan</h3>
+          </div>
+          <div class="flex flex-wrap gap-2">
+            <button @click="filterJurusan = ''" :class="filterJurusan === '' ? 'bg-secondary-fixed text-on-secondary-fixed font-bold' : 'bg-surface-container-high text-on-surface-variant font-medium'" class="px-3 py-1.5 rounded-full text-xs transition-all hover:bg-slate-200">Semua</button>
+            <button
+              v-for="jurusan in jurusanList"
+              :key="jurusan"
+              @click="filterJurusan = filterJurusan === jurusan ? '' : jurusan"
+              :class="filterJurusan === jurusan ? 'bg-secondary-fixed text-on-secondary-fixed font-bold' : 'bg-surface-container-high text-on-surface-variant font-medium'"
+              class="px-3 py-1.5 rounded-full text-xs transition-all hover:bg-slate-200"
+            >
+              {{ jurusan }}
+            </button>
           </div>
         </div>
       </section>

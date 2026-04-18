@@ -26,9 +26,16 @@ const logout = async () => {
 </script>
 
 <template>
-  <div class="bg-surface font-body text-on-surface flex min-h-screen">
+  <div class="font-body text-on-surface flex min-h-screen relative overflow-hidden bg-surface">
+    <!-- Responsive Background Images -->
+    <div class="fixed inset-0 z-0 pointer-events-none">
+      <img src="/images/Desktop.jpeg" alt="Background Desktop" class="w-full h-full object-cover hidden md:block opacity-10 mix-blend-multiply" />
+      <img src="/images/Mobile.jpeg" alt="Background Mobile" class="w-full h-full object-cover block md:hidden opacity-10 mix-blend-multiply" />
+      <div class="absolute inset-0 bg-surface/90 backdrop-blur-[2px]"></div>
+    </div>
+
     <!-- SideNavBar Component -->
-    <aside class="h-screen w-64 fixed left-0 top-0 bg-surface-container flex flex-col gap-2 p-4 border-r border-transparent z-40">
+    <aside class="h-screen w-64 fixed left-0 top-0 bg-surface-container/95 backdrop-blur-md flex flex-col gap-2 p-4 border-r border-transparent z-40">
       <div class="px-4 py-6 mb-4">
         <div class="flex items-center gap-3">
           <div class="w-10 h-10 bg-primary rounded-xl flex items-center justify-center text-on-primary">
@@ -63,6 +70,14 @@ const logout = async () => {
           </a>
         </router-link>
 
+        <!-- Tombol Kelas (BARU) -->
+        <router-link to="/admin/kelas" custom v-slot="{ navigate }">
+          <a @click="navigate" :class="isActive('/admin/kelas') ? 'bg-white text-primary shadow-sm font-bold' : 'text-slate-600 hover:bg-slate-200/50 hover:translate-x-1 font-medium'" class="flex items-center gap-3 px-4 py-3 rounded-lg transition-transform active:opacity-80 cursor-pointer">
+            <span class="material-symbols-outlined" :style="isActive('/admin/kelas') ? 'font-variation-settings: \'FILL\' 1;' : ''">class</span>
+            <span class="font-['Inter'] text-sm">Manajemen Kelas</span>
+          </a>
+        </router-link>
+
         <!-- Tombol Import Siswa (BARU) -->
         <router-link to="/admin/import-siswa" custom v-slot="{ navigate }">
           <a @click="navigate" :class="isActive('/admin/import-siswa') ? 'bg-white text-primary shadow-sm font-bold' : 'text-slate-600 hover:bg-slate-200/50 hover:translate-x-1 font-medium'" class="flex items-center gap-3 px-4 py-3 rounded-lg transition-transform active:opacity-80 cursor-pointer">
@@ -92,7 +107,7 @@ const logout = async () => {
     </aside>
 
     <!-- Main Content Area -->
-    <main class="flex-1 ml-64 overflow-y-auto bg-surface relative min-h-screen pb-16">
+    <main class="flex-1 ml-64 overflow-y-auto bg-transparent relative min-h-screen pb-16 z-10">
       <router-view></router-view>
 
       <!-- Footer -->

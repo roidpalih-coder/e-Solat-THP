@@ -41,7 +41,13 @@ const handleLogin = async () => {
 </script>
 
 <template>
-<div class="bg-surface font-body text-on-surface min-h-screen flex flex-col">
+<div class="bg-surface font-body text-on-surface min-h-screen flex flex-col relative overflow-hidden">
+  <!-- Responsive Background Images -->
+  <div class="absolute inset-0 z-0 pointer-events-none">
+    <img src="/images/Desktop.jpeg" alt="Background Desktop" class="w-full h-full object-cover hidden md:block opacity-20 mix-blend-multiply" />
+    <img src="/images/Mobile.jpeg" alt="Background Mobile" class="w-full h-full object-cover block md:hidden opacity-20 mix-blend-multiply" />
+    <div class="absolute inset-0 bg-surface/80 backdrop-blur-[2px]"></div>
+  </div>
   <!-- Top Navigation Bar -->
   <nav class="fixed top-0 w-full z-50 bg-[#f7f9fc]/80 dark:bg-slate-900/80 backdrop-blur-md shadow-sm dark:shadow-none">
     <div class="flex justify-between items-center px-8 py-4 max-w-full">
@@ -61,7 +67,7 @@ const handleLogin = async () => {
   </nav>
 
   <!-- Main Content Canvas -->
-  <main class="flex-grow flex items-center justify-center pt-20 px-4 md:px-12">
+  <main class="flex-grow flex items-center justify-center pt-20 px-4 md:px-12 relative z-10">
     <div class="max-w-[1440px] w-full grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
       <!-- Left Side: Welcome Intro -->
       <div class="space-y-8 lg:pr-16">
@@ -148,7 +154,7 @@ const handleLogin = async () => {
   <div class="fixed -top-24 -right-24 w-96 h-96 bg-secondary/5 rounded-full blur-[120px] -z-10"></div>
 
   <!-- Footer -->
-  <footer class="w-full py-8 mt-auto bg-[#f7f9fc] dark:bg-slate-950 border-t border-slate-200/20">
+  <footer class="w-full py-8 mt-auto bg-[#f7f9fc]/90 dark:bg-slate-950 border-t border-slate-200/20 relative z-10 backdrop-blur-sm">
     <div class="flex flex-col md:flex-row justify-between items-center px-12 gap-4">
       <div class="font-bold text-slate-800 dark:text-slate-200 font-headline">
         e-Solat THP
