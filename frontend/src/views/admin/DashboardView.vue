@@ -182,7 +182,7 @@ onMounted(fetchData)
       <!-- Content Split Section -->
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
         <!-- Detailed Attendance Chart Visual -->
-        <div class="lg:col-span-2 bg-white rounded-3xl p-8 shadow-sm">
+        <div class="lg:col-span-2 bg-surface-container-lowest rounded-3xl p-8 shadow-sm">
           <div class="flex justify-between items-center mb-8">
             <div>
               <h4 class="text-xl font-bold font-headline">Grafik Kehadiran Mingguan</h4>
@@ -195,8 +195,8 @@ onMounted(fetchData)
           <!-- Chart dynamic -->
           <div class="h-64 flex items-end justify-between gap-2 px-4">
             <div v-for="(col, index) in chartData" :key="index" class="flex flex-col items-center gap-2 flex-1 group relative">
-              <div class="absolute -top-8 bg-surface-container-highest text-on-surface text-[10px] font-bold px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity">
-                {{ col.total }} Absen
+              <div class="absolute -top-8 bg-surface-container-highest text-on-surface text-[10px] font-bold px-2 py-0.5 rounded shadow-sm border border-outline-variant/10 group-hover:scale-110 group-hover:bg-primary group-hover:text-white transition-all duration-200">
+                {{ col.total }}
               </div>
               <div 
                 class="w-full rounded-t-lg transition-all"
@@ -240,7 +240,7 @@ onMounted(fetchData)
           </div>
 
           <div class="mt-4">
-            <div class="bg-white/50 rounded-2xl p-4">
+            <div class="bg-surface-container/50 rounded-2xl p-4">
               <p class="text-xs font-bold text-on-surface-variant uppercase mb-3">Pesan Sistem</p>
               <p class="text-sm text-on-surface leading-relaxed">
                 Pastikan semua perangkat absensi aktif sebelum waktu solat Zuhur dimulai.

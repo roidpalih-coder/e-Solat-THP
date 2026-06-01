@@ -2,8 +2,10 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import api from '@/services/api'
+import { useTheme } from '@/stores/theme'
 
 const router = useRouter()
+const { isDark, toggleTheme } = useTheme()
 
 const namaPetugas = ref('')
 const username = ref('')
@@ -68,6 +70,10 @@ const handleRegister = async () => {
         <a class="text-slate-600 dark:text-slate-400 font-headline font-semibold hover:text-[#0050cb] transition-colors" href="#">Panduan</a>
       </div>
       <div class="flex gap-4 items-center">
+        <!-- Theme Toggle -->
+        <button @click="toggleTheme" class="w-10 h-10 rounded-full flex items-center justify-center text-slate-600 dark:text-slate-400 hover:bg-surface-container transition-colors cursor-pointer" :title="isDark ? 'Mode Terang' : 'Mode Gelap'">
+          <span class="material-symbols-outlined">{{ isDark ? 'light_mode' : 'dark_mode' }}</span>
+        </button>
         <button @click="router.push('/register')" class="bg-primary text-on-primary px-6 py-2 rounded-full font-headline font-semibold scale-95 duration-200 active:opacity-80">Daftar</button>
         <button @click="router.push('/login')" class="text-slate-600 dark:text-slate-400 font-headline font-semibold hover:text-[#0050cb] transition-colors">Masuk</button>
       </div>

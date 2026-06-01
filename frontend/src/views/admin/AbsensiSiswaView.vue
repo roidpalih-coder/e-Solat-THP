@@ -255,7 +255,7 @@ onUnmounted(() => {
 
     <!-- Main Area: Data Siswa yang sudah absen -->
     <section class="bg-surface-container-lowest rounded-xl overflow-hidden shadow-sm">
-      <div class="px-8 py-6 border-b border-surface-container flex justify-between items-center bg-white">
+      <div class="px-8 py-6 border-b border-surface-container flex justify-between items-center bg-surface-container-lowest">
         <div>
           <h3 class="text-lg font-bold text-on-surface">Data Siswa yang sudah absen</h3>
           <p class="text-xs text-on-surface-variant mt-1">

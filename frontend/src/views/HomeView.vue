@@ -2,8 +2,10 @@
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
+import { useTheme } from '@/stores/theme'
 
 const router = useRouter()
+const { isDark, toggleTheme } = useTheme()
 
 const stats = ref({
   total_siswa: 0,
@@ -55,6 +57,10 @@ const scrollTo = (selector) => {
         <a @click.prevent="scrollTo('#panduan')" class="text-slate-600 dark:text-slate-400 hover:text-[#0050cb] transition-colors cursor-pointer">Panduan</a>
       </div>
       <div class="flex items-center gap-4">
+        <!-- Theme Toggle -->
+        <button @click="toggleTheme" class="w-10 h-10 rounded-full flex items-center justify-center text-slate-600 dark:text-slate-400 hover:bg-surface-container transition-colors cursor-pointer" :title="isDark ? 'Mode Terang' : 'Mode Gelap'">
+          <span class="material-symbols-outlined">{{ isDark ? 'light_mode' : 'dark_mode' }}</span>
+        </button>
         <button @click="goToLogin" class="text-slate-600 dark:text-slate-400 font-semibold px-4 py-2 hover:text-[#0050cb] transition-colors cursor-pointer">Masuk</button>
         <button @click="router.push('/register')" class="bg-primary text-on-primary px-6 py-2 rounded-full font-semibold shadow-md active:scale-95 duration-200 cursor-pointer">Daftar</button>
       </div>
@@ -149,30 +155,21 @@ const scrollTo = (selector) => {
               <span class="material-symbols-outlined text-primary text-3xl">qr_code_2</span>
             </div>
             <h3 class="text-2xl font-bold text-on-surface mb-4 headline">Absensi Solat Digital</h3>
-            <p class="text-on-surface-variant leading-relaxed mb-6">Pencatatan kehadiran menggunakan QR Code atau biometrik yang terintegrasi langsung dengan database pusat.</p>
-            <a class="text-primary font-bold inline-flex items-center gap-2 hover:gap-4 transition-all" href="#">
-              Selengkapnya <span class="material-symbols-outlined">arrow_forward</span>
-            </a>
+            <p class="text-on-surface-variant leading-relaxed mb-2">Pencatatan kehadiran menggunakan QR Code atau biometrik yang terintegrasi langsung dengan database pusat.</p>
           </div>
           <div class="group hover:bg-surface-container transition-colors p-8 rounded-3xl border border-outline-variant/10">
             <div class="w-16 h-16 rounded-2xl bg-secondary/10 flex items-center justify-center mb-8 group-hover:scale-110 transition-transform">
               <span class="material-symbols-outlined text-secondary text-3xl">badge</span>
             </div>
             <h3 class="text-2xl font-bold text-on-surface mb-4 headline">Manajemen Siswa</h3>
-            <p class="text-on-surface-variant leading-relaxed mb-6">Database lengkap yang mencakup profil, rekam jejak kehadiran, dan perkembangan spiritual setiap individu.</p>
-            <a class="text-primary font-bold inline-flex items-center gap-2 hover:gap-4 transition-all" href="#">
-              Selengkapnya <span class="material-symbols-outlined">arrow_forward</span>
-            </a>
+            <p class="text-on-surface-variant leading-relaxed mb-2">Database lengkap yang mencakup profil, rekam jejak kehadiran, dan perkembangan spiritual setiap individu.</p>
           </div>
           <div class="group hover:bg-surface-container transition-colors p-8 rounded-3xl border border-outline-variant/10">
             <div class="w-16 h-16 rounded-2xl bg-tertiary/10 flex items-center justify-center mb-8 group-hover:scale-110 transition-transform">
               <span class="material-symbols-outlined text-tertiary text-3xl">analytics</span>
             </div>
             <h3 class="text-2xl font-bold text-on-surface mb-4 headline">Laporan Real-time</h3>
-            <p class="text-on-surface-variant leading-relaxed mb-6">Dashboard analytics untuk admin dan orang tua siswa guna memantau kedisiplinan ibadah secara instan.</p>
-            <a class="text-primary font-bold inline-flex items-center gap-2 hover:gap-4 transition-all" href="#">
-              Selengkapnya <span class="material-symbols-outlined">arrow_forward</span>
-            </a>
+            <p class="text-on-surface-variant leading-relaxed mb-2">Dashboard analytics untuk admin dan orang tua siswa guna memantau kedisiplinan ibadah secara instan.</p>
           </div>
         </div>
       </section>

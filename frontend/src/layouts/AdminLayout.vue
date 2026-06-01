@@ -2,11 +2,13 @@
 import { useRoute, useRouter } from 'vue-router'
 import { computed } from 'vue'
 import { useAuth } from '@/stores/auth'
+import { useTheme } from '@/stores/theme'
 import api from '@/services/api'
 
 const route = useRoute()
 const router = useRouter()
 const { user, clearAuth } = useAuth()
+const { isDark, toggleTheme } = useTheme()
 
 const username = computed(() => user.value?.username || 'Petugas')
 
@@ -42,7 +44,7 @@ const logout = async () => {
             <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">mosque</span>
           </div>
           <div>
-            <h1 class="text-lg font-bold text-primary font-headline leading-tight">Admin Panel</h1>
+            <h1 class="text-lg font-bold text-primary font-headline leading-tight">e-Solat THP</h1>
             <p class="text-[10px] uppercase tracking-wider text-on-surface-variant/60 font-semibold font-headline">THP Management</p>
           </div>
         </div>
@@ -50,21 +52,21 @@ const logout = async () => {
 
       <nav class="flex-1 space-y-1">
         <router-link to="/admin/dashboard" custom v-slot="{ navigate }">
-          <a @click="navigate" :class="isActive('/admin/dashboard') ? 'bg-white text-primary shadow-sm font-bold' : 'text-slate-600 hover:bg-slate-200/50 hover:translate-x-1 font-medium'" class="flex items-center gap-3 px-4 py-3 rounded-lg transition-transform active:opacity-80 cursor-pointer">
+          <a @click="navigate" :class="isActive('/admin/dashboard') ? 'bg-surface-container-lowest text-primary shadow-sm font-bold' : 'text-on-surface-variant hover:bg-surface-container/50 hover:translate-x-1 font-medium'" class="flex items-center gap-3 px-4 py-3 rounded-lg transition-transform active:opacity-80 cursor-pointer">
             <span class="material-symbols-outlined" :style="isActive('/admin/dashboard') ? 'font-variation-settings: \'FILL\' 1;' : ''">dashboard</span>
             <span class="font-['Inter'] text-sm">Dashboard</span>
           </a>
         </router-link>
 
         <router-link to="/admin/absensi-siswa" custom v-slot="{ navigate }">
-          <a @click="navigate" :class="isActive('/admin/absensi-siswa') ? 'bg-white text-primary shadow-sm font-bold' : 'text-slate-600 hover:bg-slate-200/50 hover:translate-x-1 font-medium'" class="flex items-center gap-3 px-4 py-3 rounded-lg transition-transform active:opacity-80 cursor-pointer">
+          <a @click="navigate" :class="isActive('/admin/absensi-siswa') ? 'bg-surface-container-lowest text-primary shadow-sm font-bold' : 'text-on-surface-variant hover:bg-surface-container/50 hover:translate-x-1 font-medium'" class="flex items-center gap-3 px-4 py-3 rounded-lg transition-transform active:opacity-80 cursor-pointer">
             <span class="material-symbols-outlined" :style="isActive('/admin/absensi-siswa') ? 'font-variation-settings: \'FILL\' 1;' : ''">how_to_reg</span>
             <span class="font-['Inter'] text-sm">Absensi Siswa</span>
           </a>
         </router-link>
 
         <router-link to="/admin/data-siswa" custom v-slot="{ navigate }">
-          <a @click="navigate" :class="isActiveGroup('/admin/data-siswa', '/admin/tambah-siswa') ? 'bg-white text-primary shadow-sm font-bold' : 'text-slate-600 hover:bg-slate-200/50 hover:translate-x-1 font-medium'" class="flex items-center gap-3 px-4 py-3 rounded-lg transition-transform active:opacity-80 cursor-pointer">
+          <a @click="navigate" :class="isActiveGroup('/admin/data-siswa', '/admin/tambah-siswa') ? 'bg-surface-container-lowest text-primary shadow-sm font-bold' : 'text-on-surface-variant hover:bg-surface-container/50 hover:translate-x-1 font-medium'" class="flex items-center gap-3 px-4 py-3 rounded-lg transition-transform active:opacity-80 cursor-pointer">
             <span class="material-symbols-outlined" :style="isActiveGroup('/admin/data-siswa', '/admin/tambah-siswa') ? 'font-variation-settings: \'FILL\' 1;' : ''">group</span>
             <span class="font-['Inter'] text-sm">Data Siswa</span>
           </a>
@@ -72,7 +74,7 @@ const logout = async () => {
 
         <!-- Tombol Kelas (BARU) -->
         <router-link to="/admin/kelas" custom v-slot="{ navigate }">
-          <a @click="navigate" :class="isActive('/admin/kelas') ? 'bg-white text-primary shadow-sm font-bold' : 'text-slate-600 hover:bg-slate-200/50 hover:translate-x-1 font-medium'" class="flex items-center gap-3 px-4 py-3 rounded-lg transition-transform active:opacity-80 cursor-pointer">
+          <a @click="navigate" :class="isActive('/admin/kelas') ? 'bg-surface-container-lowest text-primary shadow-sm font-bold' : 'text-on-surface-variant hover:bg-surface-container/50 hover:translate-x-1 font-medium'" class="flex items-center gap-3 px-4 py-3 rounded-lg transition-transform active:opacity-80 cursor-pointer">
             <span class="material-symbols-outlined" :style="isActive('/admin/kelas') ? 'font-variation-settings: \'FILL\' 1;' : ''">class</span>
             <span class="font-['Inter'] text-sm">Manajemen Kelas</span>
           </a>
@@ -80,11 +82,17 @@ const logout = async () => {
 
         <!-- Tombol Import Siswa (BARU) -->
         <router-link to="/admin/import-siswa" custom v-slot="{ navigate }">
-          <a @click="navigate" :class="isActive('/admin/import-siswa') ? 'bg-white text-primary shadow-sm font-bold' : 'text-slate-600 hover:bg-slate-200/50 hover:translate-x-1 font-medium'" class="flex items-center gap-3 px-4 py-3 rounded-lg transition-transform active:opacity-80 cursor-pointer">
+          <a @click="navigate" :class="isActive('/admin/import-siswa') ? 'bg-surface-container-lowest text-primary shadow-sm font-bold' : 'text-on-surface-variant hover:bg-surface-container/50 hover:translate-x-1 font-medium'" class="flex items-center gap-3 px-4 py-3 rounded-lg transition-transform active:opacity-80 cursor-pointer">
             <span class="material-symbols-outlined" :style="isActive('/admin/import-siswa') ? 'font-variation-settings: \'FILL\' 1;' : ''">upload_file</span>
             <span class="font-['Inter'] text-sm">Import Siswa</span>
           </a>
         </router-link>
+
+        <!-- Theme Toggle -->
+        <a @click="toggleTheme" class="flex items-center gap-3 px-4 py-3 text-on-surface-variant hover:bg-surface-container/50 rounded-lg transition-transform hover:translate-x-1 active:opacity-80 cursor-pointer font-medium">
+          <span class="material-symbols-outlined text-primary">{{ isDark ? 'light_mode' : 'dark_mode' }}</span>
+          <span class="font-['Inter'] text-sm">{{ isDark ? 'Mode Terang' : 'Mode Gelap' }}</span>
+        </a>
 
         <a @click="logout" class="flex items-center gap-3 px-4 py-3 text-slate-600 hover:bg-slate-200/50 rounded-lg transition-transform hover:translate-x-1 active:opacity-80 mt-4 cursor-pointer font-medium">
           <span class="material-symbols-outlined text-error">logout</span>

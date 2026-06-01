@@ -2,8 +2,10 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import axios from 'axios'
+import { useTheme } from '@/stores/theme'
 
 const router = useRouter()
+const { isDark, toggleTheme } = useTheme()
 const nis = ref('')
 const showPopup = ref(false)
 const isLoading = ref(false)
@@ -75,6 +77,10 @@ const getInitials = (name) => {
         <a class="text-slate-600 dark:text-slate-400 hover:text-[#0050cb] transition-colors font-headline font-semibold" href="#">Panduan</a>
       </div>
       <div class="flex items-center gap-4">
+        <!-- Theme Toggle -->
+        <button @click="toggleTheme" class="w-10 h-10 rounded-full flex items-center justify-center text-slate-600 dark:text-slate-400 hover:bg-surface-container transition-colors cursor-pointer" :title="isDark ? 'Mode Terang' : 'Mode Gelap'">
+          <span class="material-symbols-outlined">{{ isDark ? 'light_mode' : 'dark_mode' }}</span>
+        </button>
         <button @click="goToLogin" class="text-slate-600 dark:text-slate-400 font-headline font-semibold px-4 py-2 hover:text-[#0050cb] transition-colors">Masuk</button>
         <button @click="router.push('/register')" class="bg-primary text-on-primary px-6 py-2 rounded-full font-headline font-semibold hover:opacity-90 active:scale-95 transition-all">Daftar</button>
       </div>

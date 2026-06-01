@@ -171,7 +171,7 @@ onMounted(async () => {
         </div>
         <!-- Switch Buttons -->
         <div class="flex p-1.5 bg-surface-container-high rounded-full w-fit">
-          <button class="px-6 py-2 bg-white text-primary shadow-sm rounded-full font-bold text-sm transition-all focus:outline-none">
+          <button class="px-6 py-2 bg-surface-container-lowest text-primary shadow-sm rounded-full font-bold text-sm transition-all focus:outline-none">
             Data Siswa
           </button>
           <button @click="router.push('/admin/tambah-siswa')" class="px-6 py-2 text-on-surface-variant hover:text-primary rounded-full font-medium text-sm transition-all focus:outline-none">
