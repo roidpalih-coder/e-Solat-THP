@@ -41,6 +41,50 @@ const scrollTo = (selector) => {
   const el = document.querySelector(selector)
   if (el) el.scrollIntoView({ behavior: 'smooth' })
 }
+
+// State for the interactive physical console simulation
+const terminalInput = ref('')
+const terminalStatus = ref('READY') // 'READY', 'SUCCESS', 'ERROR'
+const terminalStatusText = ref('SIAP UNTUK ABSENSI')
+const isTerminalSuccess = ref(false)
+
+const handleTerminalKeyPress = (key) => {
+  if (terminalStatus.value === 'SUCCESS') return // Block keys during success state
+
+  if (key === 'C') {
+    terminalInput.value = ''
+    terminalStatus.value = 'READY'
+    terminalStatusText.value = 'SIAP UNTUK ABSENSI'
+  } else if (key === 'NIS') {
+    if (terminalInput.value.length < 4) {
+      terminalStatus.value = 'ERROR'
+      terminalStatusText.value = 'NIS MINIMAL 4 DIGIT'
+      setTimeout(() => {
+        if (terminalStatus.value === 'ERROR') {
+          terminalStatus.value = 'READY'
+          terminalStatusText.value = 'SIAP UNTUK ABSENSI'
+        }
+      }, 2000)
+    } else {
+      terminalStatus.value = 'SUCCESS'
+      terminalStatusText.value = 'NIS DITERIMA'
+      isTerminalSuccess.value = true
+      
+      // Reset success state after 2.5 seconds
+      setTimeout(() => {
+        terminalInput.value = ''
+        terminalStatus.value = 'READY'
+        terminalStatusText.value = 'SIAP UNTUK ABSENSI'
+        isTerminalSuccess.value = false
+      }, 2500)
+    }
+  } else {
+    // Append number up to 10 digits
+    if (terminalInput.value.length < 10) {
+      terminalInput.value += key
+    }
+  }
+}
 </script>
 
 <template>
@@ -182,33 +226,145 @@ const scrollTo = (selector) => {
               <div class="flex gap-6">
                 <div class="flex-shrink-0 w-12 h-12 rounded-full bg-primary text-white flex items-center justify-center font-bold text-xl headline">1</div>
                 <div>
-                  <h4 class="text-xl font-bold mb-2 headline">Registrasi Akun</h4>
-                  <p class="text-on-surface-variant">Lakukan pendaftaran institusi dan masukkan data siswa secara massal melalui panel dashboard admin.</p>
+                  <h4 class="text-xl font-bold mb-2 headline">Registrasi Akun / Data Siswa</h4>
+                  <p class="text-on-surface-variant">Lakukan pendaftaran institusi dan pastikan seluruh data NIS serta nama siswa sudah diinput secara massal oleh admin melalui panel dashboard.</p>
                 </div>
               </div>
               <div class="flex gap-6">
                 <div class="flex-shrink-0 w-12 h-12 rounded-full bg-primary text-white flex items-center justify-center font-bold text-xl headline">2</div>
                 <div>
-                  <h4 class="text-xl font-bold mb-2 headline">Scanning Kehadiran</h4>
-                  <p class="text-on-surface-variant">Siswa melakukan scan QR Code yang tersedia di area ibadah menggunakan aplikasi mobile e-Solat.</p>
+                  <h4 class="text-xl font-bold mb-2 headline">Input NIS Kehadiran</h4>
+                  <p class="text-on-surface-variant">Siswa datang ke area absensi dan mengetikkan Nomor Induk Siswa (NIS) mereka masing-masing pada perangkat absensi yang disediakan untuk mencatat kehadiran secara real-time.</p>
                 </div>
               </div>
               <div class="flex gap-6">
                 <div class="flex-shrink-0 w-12 h-12 rounded-full bg-primary text-white flex items-center justify-center font-bold text-xl headline">3</div>
                 <div>
                   <h4 class="text-xl font-bold mb-2 headline">Pantau &amp; Evaluasi</h4>
-                  <p class="text-on-surface-variant">Admin dan staf pengajar menerima laporan harian, mingguan, dan bulanan secara otomatis.</p>
+                  <p class="text-on-surface-variant">Admin dan staf pengajar menerima laporan harian, mingguan, dan bulanan secara otomatis berdasarkan rekapitulasi input NIS tersebut.</p>
                 </div>
               </div>
             </div>
           </div>
-          <div class="lg:w-1/2 w-full">
-            <div class="relative bg-surface-container-highest rounded-3xl p-2 aspect-square max-w-md mx-auto shadow-xl">
-              <img alt="Tutorial Illustration" class="w-full h-full object-cover rounded-2xl" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCaZQ0Cp1lUcuTW8iKKGDVax6LCyeAll5mtn2l3K3HVpWQa0W2WFwS8PFhsHGn0fK6mRh9lcbWMsrPREXp3GZuHtm9gFO0u0ADPjET7eEL-zf9tpT_GNgC3hkZZKGlLv4yxY9MV0RU1tALiVFqh8tJHtvYRdNqzsnU0HJ65mFWgaLBX_y6SE4kp7eg_Bh5JmYY-nl8sKVLeFOsLFmXfsihzTwK4KFEdL2qmdW7igmSlS6qUppeBJnsjvYiSJWtzX2I2NX9CkXwBUq8"/>
-              <div class="absolute -top-6 -right-6 glass-panel p-6 rounded-2xl shadow-lg border border-white/30 hidden md:block">
+          <div class="lg:w-1/2 w-full flex items-center justify-center">
+            <!-- Blurred UI Panel wrapping the 3D terminal simulation -->
+            <div class="relative bg-surface-container-highest/60 backdrop-blur-md rounded-[2.5rem] p-6 w-full max-w-md mx-auto shadow-2xl border border-white/15 aspect-square flex flex-col justify-between overflow-hidden">
+              
+              <!-- 3D Perspective Wrapper for the Physical Terminal Console -->
+              <div class="relative w-full h-full flex flex-col justify-center items-center py-2" style="perspective: 1000px;">
+                <div 
+                  class="w-full max-w-[340px] bg-gradient-to-b from-[#2d3748] to-[#1a202c] rounded-[2rem] p-5 shadow-[0_20px_50px_rgba(0,0,0,0.5),_inset_0_2px_4px_rgba(255,255,255,0.15)] border-t border-[#4a5568] transition-all duration-300 relative select-none"
+                  style="transform: rotateX(8deg) rotateY(-4deg); transform-style: preserve-3d;"
+                  :class="{ 'ring-4 ring-emerald-500/50 shadow-[0_0_30px_rgba(16,185,129,0.4)]': terminalStatus === 'SUCCESS' }"
+                >
+                  <!-- Glossy Screen Bezel -->
+                  <div class="bg-[#0f172a] rounded-xl p-3 border border-[#334155] shadow-inner mb-4">
+                    <!-- LCD Screen -->
+                    <div 
+                      class="rounded-lg p-3 font-mono text-sm relative overflow-hidden h-24 flex flex-col justify-between transition-colors duration-300"
+                      :class="{
+                        'bg-[#061f1a] text-[#10b981] shadow-[inset_0_0_15px_rgba(16,185,129,0.2)]': terminalStatus === 'READY',
+                        'bg-[#022c22] text-[#34d399] shadow-[inset_0_0_20px_rgba(52,211,153,0.4)]': terminalStatus === 'SUCCESS',
+                        'bg-[#2d0606] text-[#f87171] shadow-[inset_0_0_15px_rgba(248,113,113,0.3)]': terminalStatus === 'ERROR'
+                      }"
+                    >
+                      <!-- Scan lines overlay for retro terminal look -->
+                      <div class="absolute inset-0 bg-scanlines opacity-5 pointer-events-none"></div>
+                      
+                      <!-- Screen Header -->
+                      <div class="flex justify-between items-center text-[10px] opacity-80 border-b border-current/20 pb-1">
+                        <span>KONSOL ABSENSI v2.0</span>
+                        <span class="flex items-center gap-1">
+                          <span 
+                            class="w-1.5 h-1.5 rounded-full inline-block"
+                            :class="{
+                              'bg-green-500 animate-pulse': terminalStatus === 'READY',
+                              'bg-emerald-400 animate-ping': terminalStatus === 'SUCCESS',
+                              'bg-red-500 animate-bounce': terminalStatus === 'ERROR'
+                            }"
+                          ></span>
+                          SIAP
+                        </span>
+                      </div>
+                      
+                      <!-- Screen NIS Value -->
+                      <div class="my-2 flex items-center gap-1 text-base font-bold">
+                        <span>NIS:</span>
+                        <template v-if="terminalInput">
+                          <span class="tracking-wider">{{ terminalInput }}</span>
+                        </template>
+                        <template v-else>
+                          <span class="opacity-40 font-normal text-sm italic">Input NIS...</span>
+                        </template>
+                        <!-- Blinking cursor -->
+                        <span class="w-2.5 h-4 bg-current inline-block animate-blink"></span>
+                      </div>
+                      
+                      <!-- Screen Footer Status -->
+                      <div class="text-[10px] text-right font-semibold uppercase tracking-wider">
+                        {{ terminalStatusText }}
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Keypad Container -->
+                  <div class="bg-[#1e293b] rounded-xl p-3 border border-[#334155]/85 shadow-inner">
+                    <div class="grid grid-cols-3 gap-2">
+                      <!-- Numbers 1-9 -->
+                      <button 
+                        v-for="num in ['1','2','3','4','5','6','7','8','9']" 
+                        :key="num"
+                        @click="handleTerminalKeyPress(num)"
+                        class="h-9 bg-gradient-to-b from-[#4a5568] to-[#2d3748] active:from-[#2d3748] active:to-[#1a202c] text-white font-mono font-bold rounded-lg border-b-4 border-slate-900 shadow-md active:translate-y-[2px] active:border-b-0 hover:brightness-110 active:scale-95 transition-all select-none flex items-center justify-center cursor-pointer"
+                      >
+                        {{ num }}
+                      </button>
+
+                      <!-- Clear Button -->
+                      <button 
+                        @click="handleTerminalKeyPress('C')"
+                        class="h-9 bg-gradient-to-b from-red-600 to-red-700 active:from-red-700 active:to-red-800 text-white font-mono font-bold rounded-lg border-b-4 border-slate-900 shadow-md active:translate-y-[2px] active:border-b-0 hover:brightness-110 active:scale-95 transition-all select-none flex items-center justify-center cursor-pointer"
+                      >
+                        C
+                      </button>
+
+                      <!-- Zero -->
+                      <button 
+                        @click="handleTerminalKeyPress('0')"
+                        class="h-9 bg-gradient-to-b from-[#4a5568] to-[#2d3748] active:from-[#2d3748] active:to-[#1a202c] text-white font-mono font-bold rounded-lg border-b-4 border-slate-900 shadow-md active:translate-y-[2px] active:border-b-0 hover:brightness-110 active:scale-95 transition-all select-none flex items-center justify-center cursor-pointer"
+                      >
+                        0
+                      </button>
+
+                      <!-- Special NIS Key (Prominent & Colored) -->
+                      <button 
+                        @click="handleTerminalKeyPress('NIS')"
+                        class="h-9 bg-gradient-to-b from-primary to-[#0050cb] active:from-[#0050cb] active:to-primary text-white font-sans font-extrabold rounded-lg border-b-4 border-slate-900 shadow-[0_0_10px_rgba(0,80,203,0.3)] active:translate-y-[2px] active:border-b-0 hover:brightness-110 active:scale-95 transition-all select-none flex items-center justify-center cursor-pointer"
+                      >
+                        NIS
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Green Notification Popup (Right Top) -->
+              <div 
+                class="absolute -top-3 -right-3 glass-panel p-5 rounded-2xl shadow-lg border border-white/30 hidden md:block transition-all duration-500 z-30"
+                :class="{ 
+                  'scale-105 bg-emerald-500/90 text-white border-emerald-400/50 shadow-emerald-500/20 translate-y-[-4px]': isTerminalSuccess,
+                  'scale-100 bg-[#f7f9fc]/80 dark:bg-slate-900/80 text-slate-800 dark:text-slate-100': !isTerminalSuccess 
+                }"
+              >
                 <div class="flex items-center gap-3">
-                  <span class="material-symbols-outlined text-green-500" style="font-variation-settings: 'FILL' 1;">check_circle</span>
-                  <p class="font-bold text-sm">Scan Berhasil!</p>
+                  <span 
+                    class="material-symbols-outlined transition-colors duration-300"
+                    :class="isTerminalSuccess ? 'text-white' : 'text-green-500'"
+                    style="font-variation-settings: 'FILL' 1;"
+                  >
+                    check_circle
+                  </span>
+                  <p class="font-bold text-sm select-none">Input NIS Berhasil!</p>
                 </div>
               </div>
             </div>
@@ -218,3 +374,22 @@ const scrollTo = (selector) => {
     </main>
   </div>
 </template>
+
+<style scoped>
+@keyframes blink {
+  0%, 49% { opacity: 1; }
+  50%, 100% { opacity: 0; }
+}
+
+.animate-blink {
+  animation: blink 1s step-end infinite;
+}
+
+.bg-scanlines {
+  background: linear-gradient(
+    rgba(18, 16, 16, 0) 50%, 
+    rgba(0, 0, 0, 0.25) 50%
+  );
+  background-size: 100% 4px;
+}
+</style>
